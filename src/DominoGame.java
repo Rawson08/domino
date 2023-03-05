@@ -12,11 +12,12 @@ import java.util.Scanner;
 
 public class DominoGame {
     private static ArrayList<Domino> boneyard = new ArrayList<>();
-    private static ArrayList<Domino> tray = new ArrayList<>();
+    private static ArrayList<Domino> gameBoard = new ArrayList<>();
     private static ArrayList<Domino> computerHand = new ArrayList<>();
     private static ArrayList<Domino> humanHand = new ArrayList<>();
     private static boolean humanTurn = true;
     private static boolean canPlay = false;
+    private static boolean firstTile = false;
 
     public static void main(String[] args) {
         initializeGame();
@@ -34,7 +35,10 @@ public class DominoGame {
         displayWinner();
     }
 
-    //Main initialization of game
+
+    /**
+     * Initializing game with 28 tiles and 7 tiles for each players
+     */
     private static void initializeGame() {
         for (int i = 0; i <= 6; i++) {
             for (int j = i; j <= 6; j++) {
@@ -42,14 +46,14 @@ public class DominoGame {
             }
         }
         shuffleBoneyard();
-        //Adding 7 bones for each player
+        //Adding 7 tiles for each player
         for (int i = 0; i < 7; i++) {
             computerHand.add(drawFromBoneyard());
             humanHand.add(drawFromBoneyard());
         }
 
-        //Adding the rest of the bones to tray
-        tray.add(drawFromBoneyard());
+//        gameBoneyard.add(drawFromBoneyard());
+        firstTile = true;
         humanTurn = true;
     }
 
@@ -86,7 +90,7 @@ public class DominoGame {
     private static void displayGameState() {
         System.out.println("Computer has " + computerHand.size() + " dominos");
         System.out.println("Boneyard contains " + boneyard.size() + " dominos");
-        System.out.println("Board: " + trayToString());
+        System.out.println(trayToString() + "\n");
         if (humanTurn) {
             System.out.println("Human's turn");
         } else {
@@ -101,10 +105,10 @@ public class DominoGame {
     private static String trayToString() {
         StringBuilder sb = new StringBuilder();
 //        sb.append("[");
-        for (int i = 0; i < tray.size(); i++) {
-            sb.append(tray.get(i));
-            if (i != tray.size() - 1) {
-                sb.append(", ");
+        for (int i = 0; i < gameBoard.size(); i++) {
+            sb.append(gameBoard.get(i));
+            if (i != gameBoard.size() - 1) {
+//                sb.append(", ");
             }
         }
 //        sb.append("]");
@@ -117,9 +121,9 @@ public class DominoGame {
      */
     private static void handleHumanTurn() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Board: " + trayToString());
-        System.out.println("Tray: " + humanHand);   //Debug Purpose
-        System.out.println("ComputerTray: " + computerHand);    //Debug Purpose
+//        System.out.println("Board: " + trayToString());
+        System.out.println("Tray: " + humanHand);
+//        System.out.println("ComputerTray: " + computerHand);    //Debug Purpose
         System.out.println("[p] Play Domino");
         System.out.println("[d] Draw from boneyard");
         System.out.println("[q] Quit");
@@ -127,7 +131,7 @@ public class DominoGame {
         switch (input) {
             case "p" -> {
                 handlePlayDomino(scanner);
-                System.out.println(tray.get(tray.size() - 1));
+                System.out.println(gameBoard.get(gameBoard.size() - 1));
             }
             case "d" -> handleDrawFromBoneyard();
             case "q" -> System.exit(0);
@@ -146,18 +150,25 @@ public class DominoGame {
     private static void handlePlayDomino(Scanner scanner) {
         System.out.println("Board: " + trayToString());
         System.out.println("Select a domino to play:");
-        for (int i = 0; i < humanHand.size(); i++) {
-            System.out.println(i + ": " + humanHand.get(i));
-        }
+
         String inputWord = scanner.next();
 
         if (inputWord.equals("d")){
+            System.out.println("Clicked d!");
             handleDrawFromBoneyard();
+            return;
         }
 
         int index = Integer.parseInt(inputWord);
         scanner.nextLine(); // Consume newline left-over
 
+        if (firstTile){
+            gameBoard.add(humanHand.get(index));
+            humanHand.remove(index);
+            humanTurn = false;
+            firstTile = false;
+            return;
+        }
 
         if (index < 0 || index >= humanHand.size()) {
             System.out.println("Invalid index");
@@ -179,16 +190,19 @@ public class DominoGame {
             handlePlayDomino(scanner);
             return;
         }
-        System.out.println("Rotate first? (y/n)");
-        String rotate = scanner.nextLine();
-        if (rotate.equals("y")) {
-            domino.rotate();
-        }
+
+        rotateTile(domino);
         if (direction.equals("l")) {
-            tray.add(0, domino);
+            gameBoard.add(0, domino);
         } else {
-            tray.add(domino);
+            gameBoard.add(domino);
         }
+
+//        System.out.println("Rotate first? (y/n)");
+//        String rotate = scanner.nextLine();
+//        if (rotate.equals("y")) {
+//            domino.rotate();
+//        }
         humanHand.remove(index);
         humanTurn = false;
     }
@@ -199,6 +213,12 @@ public class DominoGame {
      */
     private static void handleDrawFromBoneyard(/*Domino dominoHand*/) {
 
+        for (Domino dominoHuman : humanHand) {
+            if (canPlayOnTray(dominoHuman)){
+                System.out.println("Can't draw while it is possible to extend the line of play!");
+                return;
+            }
+        }
         ArrayList<Domino> turn;
         turn = checkTurn();
         Domino domino = drawFromBoneyard();
@@ -252,13 +272,21 @@ public class DominoGame {
 
         // Check if the computer can play a domino
         Domino domino = turn.get(i);
-        System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(0).getSide1(): " + tray.get(0).getSide1());
-        System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(0).getSide1(): " + tray.get(0).getSide1());
-        System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(tray.size()-1).getSide2(): " + tray.get(tray.size()-1).getSide2());
-        System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(tray.size()-1).getSide2(): " + tray.get(tray.size()-1).getSide2());
+        System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(0).getSide1(): " + gameBoard.get(0).getSide1());
+        System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(0).getSide1(): " + gameBoard.get(0).getSide1());
+        System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(tray.size()-1).getSide2(): " + gameBoard.get(gameBoard.size()-1).getSide2());
+        System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(tray.size()-1).getSide2(): " + gameBoard.get(gameBoard.size()-1).getSide2());
 
 
         return true;
+    }
+
+    private static void rotateTile(Domino domino){
+
+        if (domino.getSide2() == gameBoard.get(gameBoard.size() - 1).getSide2() ||
+                    domino.getSide1() == gameBoard.get(0).getSide1()) {
+                domino.rotate();
+            }
     }
 
     /**
@@ -280,19 +308,15 @@ public class DominoGame {
             Domino domino = computerHand.get(i);
             if (canPlayOnTray(domino)) {
                 canPlay = true;
-                System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(0).getSide1(): " + tray.get(0).getSide1());
-                System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(tray.size()-1).getSide2(): " + tray.get(tray.size()-1).getSide2());
-                System.out.println("domino.getSide1(): " + domino.getSide1() + "| tray.get(tray.size()-1).getSide2(): " + tray.get(tray.size()-1).getSide2());
-                System.out.println("domino.getSide2(): " + domino.getSide2() + "| tray.get(0).getSide1(): " + tray.get(0).getSide1());
 
                 index = i;
-                if (domino.getSide1() == tray.get(0).getSide1()) {
-                    domino.rotate();
+                if (domino.getSide1() == gameBoard.get(0).getSide1()) {
+//                    domino.rotate();
                     position = "l";
-                } else if (domino.getSide2() == tray.get(tray.size() - 1).getSide2()) {
-                    domino.rotate();
+                } else if (domino.getSide2() == gameBoard.get(gameBoard.size() - 1).getSide2()) {
+//                    domino.rotate();
                     position = "r";
-                } else if (domino.getSide1() == tray.get(tray.size() - 1).getSide2()) {
+                } else if (domino.getSide1() == gameBoard.get(gameBoard.size() - 1).getSide2()) {
 //                    domino.rotate();
                     position = "r";
                 } else {
@@ -310,18 +334,13 @@ public class DominoGame {
             Domino domino = computerHand.remove(index);
 
             // Rotate the domino if necessary
-//            boolean rotate = false;
-//            if (domino.getSide1() == tray.get(tray.size() - 1).getSide2() ||
-//                    domino.getSide2() == tray.get(0).getSide1()) {
-//                rotate = true;
-//                domino.rotate();
-//            }
+                rotateTile(domino);
 
             // Add the domino to the tray
             if (position.equals("l")) {
-                tray.add(0, domino);
+                gameBoard.add(0, domino);
             } else if (position.equals("r")) {
-                tray.add(domino);
+                gameBoard.add(domino);
             }
 
             // Check if the computer won
@@ -350,10 +369,10 @@ public class DominoGame {
      * @return
      */
     private static boolean canPlayOnTray(Domino domino) {
-        return domino.getSide1() == tray.get(0).getSide1() ||
-                domino.getSide2() == tray.get(0).getSide1() ||
-                domino.getSide1() == tray.get(tray.size() - 1).getSide2() ||
-                domino.getSide2() == tray.get(tray.size() - 1).getSide2();
+        return domino.getSide1() == gameBoard.get(0).getSide1() ||
+                domino.getSide2() == gameBoard.get(0).getSide1() ||
+                domino.getSide1() == gameBoard.get(gameBoard.size() - 1).getSide2() ||
+                domino.getSide2() == gameBoard.get(gameBoard.size() - 1).getSide2();
     }
 
     /**
@@ -361,9 +380,24 @@ public class DominoGame {
      * @return
      */
     private static boolean isGameOver() {
-        if (humanHand.isEmpty() || computerHand.isEmpty() || boneyard.isEmpty()) {
+        if ((humanHand.isEmpty() || computerHand.isEmpty()) && boneyard.isEmpty()) {
             return true;
         }
+
+        //Checks if boneyard is empty and human can play or not
+        for (Domino dominoHuman : humanHand){
+            if (boneyard.isEmpty() && !canPlayOnTray(dominoHuman)) {
+                return true;
+            }
+        }
+
+        //Checks if boneyard is empty and computer can play or not
+        for (Domino dominoComputer : computerHand){
+            if (boneyard.isEmpty() && !canPlayOnTray(dominoComputer)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -386,6 +420,13 @@ public class DominoGame {
             System.out.println("Human wins!");
         } else if (computerScore < humanScore) {
             System.out.println("Computer wins!");
+        } else if (computerScore == humanScore) {
+            if (humanTurn){
+                System.out.println("Human wins!");
+            }
+            else {
+                System.out.println("Computer wins!");
+            }
         } else {
             System.out.println("It's a tie!");
         }
