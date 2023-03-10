@@ -1,1 +1,2 @@
-### Domino Game
+# Domino Game
+### This game has 2 different version, first is the one which runs with the Standarnd Input/Output command, while the other one is the JavaFX implementation of the game with interactive UI. 
