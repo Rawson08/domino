@@ -8,11 +8,11 @@ public class Domino {
     }
 
 
-    public int getSide1() {
+    public int getLeft() {
         return side1;
     }
 
-    public int getSide2() {
+    public int getRight() {
         return side2;
     }
 
