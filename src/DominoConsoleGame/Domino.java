@@ -1,3 +1,5 @@
+package DominoConsoleGame;
+
 public class Domino {
     private int side1;
     private int side2;

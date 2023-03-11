@@ -1,24 +1,27 @@
+package DominoConsoleGame;
+
+import static DominoConsoleGame.DominoGame.*;
+
 public class DominoConsole {
 
-    Board board = new Board();
+//    Board board = new Board();
 //    Gameplay gameplay = new Gameplay();
-    DominoGame dominoGame = new DominoGame();
-//    Domino domino = new Domino();
+//    DominoConsoleGame.Domino domino = new DominoConsoleGame.Domino();
 
     public static void main(String[] args) {
-        DominoGame.initializeGame();
+        initializeGame();
         while (true) {
-            DominoGame.displayGameState();
-            if (DominoGame.isGameOver()) {
+            displayGameState();
+            if (isGameOver()) {
                 break;
             }
-            if (DominoGame.humanTurn) {
-                DominoGame.handleHumanTurn();
+            if (humanTurn) {
+                handleHumanTurn();
             } else {
-                DominoGame.handleComputerTurn();
+                handleComputerTurn();
             }
         }
-        DominoGame.displayWinner();
+        displayWinner();
     }
 
 //    private static GameSetup gameSetup;

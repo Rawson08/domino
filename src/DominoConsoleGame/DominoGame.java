@@ -1,7 +1,9 @@
-/* Domino Game Project
+package DominoConsoleGame;
+
+/* DominoConsoleGame.Domino Game Project
 * Name: Roshan Subedi
 * Class: CS351 Project 3 Assignment
-* Description: This is a project for Domino Game, and this file contains the implementation of the
+* Description: This is a project for DominoConsoleGame.Domino Game, and this file contains the implementation of the
 * game using System input output rather than a graphical interface (JavaFX). There are two implementation
 * requirements for this project and this is the first one. Other implementation will be based on JavaFX
 * using the same base game.
@@ -314,7 +316,7 @@ public class DominoGame {
     /**
      * Method called when player chooses drawFromBoneyard
      */
-    private static void handleDrawFromBoneyard(/*Domino dominoHand*/) {
+    private static void handleDrawFromBoneyard(/*DominoConsoleGame.Domino dominoHand*/) {
 
         if (humanTurn){
             for (Domino dominoHuman : humanHand) {
