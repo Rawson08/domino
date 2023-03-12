@@ -6,5 +6,5 @@
 ### You will be able to find the design diagram for the Console version of the game. 
 
 ## Some changes possible for the game
-### Currently, the shuffle method only shuffles the 28 dominos into different indexes but in the order they are created, i.e. [x, y] where x is always less than y. It can be further improved by shuffling around the dominos as well as rotating them randomly so that they are better shuffled and x can no longer always be less than y. But, that is something to be improved later on.
+#### Currently, the shuffle method only shuffles the 28 dominos into different indexes but in the order they are created, i.e. [x, y] where x is always less than y. It can be further improved by shuffling around the dominos as well as rotating them randomly so that they are better shuffled and x can no longer always be less than y. But, that is something to be improved later on.
 
