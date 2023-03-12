@@ -1,5 +1,11 @@
 package DominoConsoleGame;
 
+/* Domino Game Project
+ * Name: Roshan Subedi
+ * Class: CS351 Project 3 Assignment
+ * Description: This is the class which stores left and right sides of the domino and
+ * returns when get functions are called. Basically, this is the class which creates the domino tile.
+ */
 public class Domino {
     private int side1;
     private int side2;
@@ -9,10 +15,7 @@ public class Domino {
         this.side2 = side2;
     }
 
-
-    public int getLeft() {
-        return side1;
-    }
+    public int getLeft() {return side1;}
 
     public int getRight() {
         return side2;
@@ -23,7 +26,6 @@ public class Domino {
         side1 = side2;
         side2 = temp;
     }
-
 
     public String toString() {
         return "[" + side1 + "|" + side2 + "]";

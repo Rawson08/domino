@@ -1,18 +1,19 @@
 package DominoConsoleGame;
 
+/* Domino Game Project
+ * Name: Roshan Subedi
+ * Class: CS351 Project 3 Assignment
+ * Description: This is the main class for the Console version of the game.
+ */
+
 import static DominoConsoleGame.DominoGame.*;
 
 public class DominoConsole {
-
-//    Board board = new Board();
-//    Gameplay gameplay = new Gameplay();
-//    DominoConsoleGame.Domino domino = new DominoConsoleGame.Domino();
-
     public static void main(String[] args) {
         initializeGame();
         while (true) {
             displayGameState();
-            if (isGameOver()) {
+            if (checkGameOver()) {
                 break;
             }
             if (humanTurn) {
@@ -23,11 +24,4 @@ public class DominoConsole {
         }
         displayWinner();
     }
-
-//    private static GameSetup gameSetup;
-//    public static void main(String[] args) {
-//         gameSetup = new GameSetup();
-//         gameSetup.drawStartingHand();
-//    }
 }
-
