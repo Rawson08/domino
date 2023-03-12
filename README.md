@@ -13,4 +13,4 @@ When user is close to end game, and user only has a tile which cannot be used in
 
 
 ### Bugs Found
-1. When the player has a tile with both zero, and it asks if the user wants to rotate it, then user selects 'No', it throws back error and forces the user to select yes to move ahead and place it in the board.
+~~1. When the player has a tile with both zero, and it asks if the user wants to rotate it, then user selects 'No', it throws back error and forces the user to select yes to move ahead and place it in the board.~~ Bug fixed.
