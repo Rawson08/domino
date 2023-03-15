@@ -9,19 +9,39 @@ package DominoConsoleGame;
  * using the same base game.
  */
 
+import javafx.application.Platform;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.VBox;
+
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DominoGame {
     private static final ArrayList<Domino> boneyard = new ArrayList<>();
-    private static final ArrayList<Domino> gameBoard = new ArrayList<>();
+    public static final ArrayList<Domino> gameBoard = new ArrayList<>();
     private static final ArrayList<Domino> computerHand = new ArrayList<>();
     private static final ArrayList<Domino> humanHand = new ArrayList<>();
-    static boolean humanTurn;
+    public static boolean humanTurn;
     private static boolean computerCanPlay = false;
     private static boolean firstTile = true;
     private static boolean wildCardPlay = false;
 
+    //Variables and initializations for GUI version below this line
+    private static TextInputDialog startGame;     //To display and take input from user on the first screen (p,d,q). This will basically send the given input to the inputText variable I have already set up for the console version
+    private static TextInputDialog playTile;
+    private static TextInputDialog locationTile;
+    private static TextInputDialog isRotateTile;
+    private static boolean showTextInputDialog;
+    private static String inputValue;
+
+    public DominoGame(){
+        this.showTextInputDialog = false;
+        this.inputValue = "";
+
+    }
     /**
      * Initializing game with 28 tiles and 7 tiles for each players
      */
@@ -69,10 +89,12 @@ public class DominoGame {
     /**
      * Method to display current game state
      */
-    static void displayGameState() {
+    public static void displayGameState() {
         String display = "Computer has " + computerHand.size() + " dominos\n" +
                 "Boneyard contains " + boneyard.size() + " dominos\n";
         printGameBoard();
+        //todo: display board in gui
+//        textInput("Enter p to play");
         String[] player = {"Human's turn", "Computer's turn"};
         System.out.println(display);
         if (humanTurn) {
@@ -82,6 +104,52 @@ public class DominoGame {
         }
     }
 
+    private static String textInput(String prompt){
+        if (needToShowTextInputDialog()){
+            showTextInputDialog = true;
+            AtomicReference<String> resultValue = new AtomicReference<>("");
+            Platform.runLater(() -> {
+                TextInputDialog dialog = new TextInputDialog("");
+                dialog.setTitle("Please Enter");
+                dialog.setHeaderText(prompt);
+                dialog.setContentText("Enter here: ");
+                Optional<String> result = dialog.showAndWait();
+                result.ifPresent(resultValue::set);
+            });
+            while (resultValue.get().isEmpty()) {
+                // Wait for the dialog to return a value
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return resultValue.get();
+        }
+        return inputValue;
+    }
+
+
+
+    private static boolean needToShowTextInputDialog(){
+        return humanTurn;
+    }
+
+    public boolean isShowTextInputDialog(){
+        return showTextInputDialog;
+    }
+
+    public void setShowTextInputDialog(boolean showTextInputDialog){
+        this.showTextInputDialog = showTextInputDialog;
+    }
+
+    public String getInputValue(){
+        return inputValue;
+    }
+
+    private void setInputValue(String inputValue){
+        this.inputValue = inputValue;
+    }
     /**
      * Method to display the current Game Board
      */
@@ -106,13 +174,13 @@ public class DominoGame {
     /**
      * Method to handle human's turn
      */
-    static void handleHumanTurn() {
+    public static void handleHumanTurn() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Tray: " + humanHand);
         System.out.println("[p] Play Domino");
         System.out.println("[d] Draw from boneyard");
         System.out.println("[q] Quit");
-        String input = scanner.nextLine();
+        String input = textInput("[p] Play Domino, [d] Draw from boneyard, [q] Quit");
         switch (input) {
             case "p" -> handlePlayDomino(scanner);
             case "d" -> handleDrawFromBoneyard();
@@ -146,7 +214,7 @@ public class DominoGame {
     private static void handlePlayDomino(Scanner scanner) {
         printGameBoard();
         System.out.println("Select a domino to play:");
-        String inputWord = scanner.next();
+        String inputWord = textInput("Select a domino to play starting with index 0");
 
         if (inputWord.equals("d")){
             handleDrawFromBoneyard();
@@ -159,7 +227,7 @@ public class DominoGame {
         }
 
         int index = Integer.parseInt(inputWord);
-        scanner.nextLine(); // Consume newline left-over
+//        scanner.nextLine(); // Consume newline left-over
 
         //For the player to play first tile
         if (firstTile){
@@ -193,7 +261,8 @@ public class DominoGame {
         }
 
         System.out.println("Left or Right? (l/r)");
-        String direction = scanner.nextLine();
+//        String direction = scanner.nextLine();
+        String direction = textInput("Left or Right? (l/r)");
         if (!direction.equals("l") && !direction.equals("r")) {
             System.out.println("Invalid direction");
             handlePlayDomino(scanner);
@@ -232,7 +301,8 @@ public class DominoGame {
         String error = "Can't play here. Try again.";
         System.out.println("Rotate first? (y/n)");
         Scanner scanner = new Scanner(System.in);
-        String rotate = scanner.nextLine();
+//        String rotate = scanner.nextLine();
+        String rotate = textInput("Rotate first? (y/n)");
         if (direction.equals("l")){
             if (rotate.equals("y")){
                 if (domino.getLeft() == 0 || domino.getLeft() == gameBoard.get(0).getLeft()){
@@ -285,7 +355,8 @@ public class DominoGame {
         if (rotate.equals("y")){
             domino.rotate();
         }
-        else {
+
+        else if (!rotate.equals("n")){
             System.out.println("Wrong Input! Try again.");
             rotateWildCardOnly(domino);
         }
@@ -417,7 +488,7 @@ public class DominoGame {
     /**
      * Method to control computer gameplay logic
      */
-    static void handleComputerTurn() {
+    public static void handleComputerTurn() {
 
         // Simulate thinking time
         try {
@@ -429,7 +500,6 @@ public class DominoGame {
         // Check if the computer can play a domino
         int index;
         String position;
-        System.out.println("computerHand" + computerHand);      //debug
         for (int i = 0; i < computerHand.size(); i++) {
             Domino domino = computerHand.get(i);
             index = i;
@@ -510,7 +580,7 @@ public class DominoGame {
      * Check if the game is over
      * @return : boolean for GameOver
      */
-    static boolean checkGameOver(){
+    public static boolean checkGameOver(){
         return (computerHand.isEmpty() && boneyard.isEmpty() && humanTurn) ||
                 humanHand.isEmpty() && boneyard.isEmpty() && !humanTurn ||
                 !computerHand.isEmpty() && boneyard.isEmpty() && !computerCanPlay;
@@ -520,7 +590,7 @@ public class DominoGame {
      * Calculate and display winner based on the score
      * Note: Still not complete
      */
-    static void displayWinner() {
+    public static void displayWinner() {
         int humanScore = 0;
         int computerScore = 0;
         for (Domino domino : humanHand) {

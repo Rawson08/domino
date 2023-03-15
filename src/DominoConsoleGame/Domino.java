@@ -1,5 +1,8 @@
 package DominoConsoleGame;
 
+import javafx.scene.Group;
+import javafx.scene.layout.HBox;
+
 /* Domino Game Project
  * Name: Roshan Subedi
  * Class: CS351 Project 3 Assignment
@@ -9,10 +12,12 @@ package DominoConsoleGame;
 public class Domino {
     private int side1;
     private int side2;
+    private HBox hBox;
 
     public Domino(int side1, int side2) {
         this.side1 = side1;
         this.side2 = side2;
+        this.hBox = new HBox();
     }
 
     public int getLeft() {return side1;}
@@ -25,6 +30,7 @@ public class Domino {
         int temp = side1;
         side1 = side2;
         side2 = temp;
+//        Group side1 = (Group) hBox.getChildren().get(0);
     }
 
     public String toString() {
